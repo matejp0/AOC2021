@@ -1,4 +1,4 @@
-package puzzle1
+package day1
 
 import (
   "strconv"
