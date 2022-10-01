@@ -6,47 +6,33 @@ import (
 )
 
 func Part1(input []string) int {
-  length := len(input)
-  linelength := len(input[0])
-  max := square(2, linelength) - 1
-  
-  array := make([]int, linelength)
-  for _, line := range input {
-    for i, r := range line {
-      if r == '1' { array[i]++ }
-    }
-  }
+  var gammarate, epsilonrate strings.Builder
 
-  var sb strings.Builder
-  for _, num := range array {
-    if num > length/2 {
-      sb.WriteRune('1')
-    } else {
-      sb.WriteRune('0')
-    }
+  for i := 0; i < len(input[0]); i++ {
+    most, least := mostCommon(input, i)
+    gammarate.WriteRune(most)
+    epsilonrate.WriteRune(least)
   }
   
-  str := sb.String()
-  g, err := strconv.ParseInt(str, 2, 0)
+  gamma, er := strconv.ParseInt(gammarate.String(), 2, 0)
+  if er != nil { panic(er) }
+
+  epsilon, err := strconv.ParseInt(epsilonrate.String(), 2, 0)
   if err != nil { panic(err) }
 
-  return int(g)*(max-int(g))
+  return int(gamma*epsilon)
 }
 
-func Part2(input []string) int {
-  linelength := len(input[0])
-  for i := 0; i < linelength; i++ {
-    for index, value := range input {
-      if value[i] == '1'
-    }
-  }
-}
 
-func square(a, b int) int {
-  var result = a
-  for i := 1; i < b; i++ {
-    result = result * a
+func mostCommon(lines []string, i int) (rune, rune) {
+  var count int
+  var length int = len(lines)
+  for _, line := range lines {
+     if line[i] == '1' { count++ }
   }
 
-  return result
+  if count > length/2 {
+    return '1', '0'
+  }
+  return '0', '1'
 }
