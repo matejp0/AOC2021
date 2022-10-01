@@ -9,4 +9,5 @@ import (
 func main() {
   var input = readinput.Read(3)
   fmt.Println(day3.Part1(input))
+  fmt.Println(day3.Part2(input))
 }

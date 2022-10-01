@@ -14,15 +14,36 @@ func Part1(input []string) int {
     epsilonrate.WriteRune(least)
   }
   
-  gamma, er := strconv.ParseInt(gammarate.String(), 2, 0)
-  if er != nil { panic(er) }
-
-  epsilon, err := strconv.ParseInt(epsilonrate.String(), 2, 0)
-  if err != nil { panic(err) }
+  gamma := binToDec(gammarate.String())
+  epsilon := binToDec(epsilonrate.String())
 
   return int(gamma*epsilon)
 }
 
+func Part2(input []string) int {
+  generator  := binToDec(findOne(input, 0, true))
+  scrubber := binToDec(findOne(input, 0, false))
+
+  return int(generator*scrubber)
+}
+
+func findOne(lines []string, index int, mostIsCommon bool) string {
+  if len(lines) == 1 { return lines[0] }
+
+  most, least := mostCommon(lines, index)
+
+  criterium := least
+  if mostIsCommon { criterium = most }
+  
+  filtered := make([]string, 0)
+  for _, value := range lines {
+    if rune(value[index]) == criterium {
+      filtered = append(filtered, value)
+    }
+  }
+
+  return findOne(filtered, index+1, mostIsCommon)
+}
 
 func mostCommon(lines []string, i int) (rune, rune) {
   var count int
@@ -31,8 +52,16 @@ func mostCommon(lines []string, i int) (rune, rune) {
      if line[i] == '1' { count++ }
   }
 
-  if count > length/2 {
+  if float64(count) >= float64(length)/2 {
     return '1', '0'
   }
   return '0', '1'
+}
+
+func binToDec(s string) int {
+  i, err := strconv.ParseInt(s, 2, 0)
+  if err != nil {
+    panic(err)
+  }
+  return int(i)
 }
