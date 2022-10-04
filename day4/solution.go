@@ -3,7 +3,6 @@ package day4
 import (
   "strings"
   "strconv"
-  //"fmt"
 )
 
 const BOARD_SIZE = 5
@@ -23,16 +22,6 @@ func Part1(input []string) int {
   return 0
 }
 
-func (board *Board) mark(number int) {
-  for _, row := range board.values {
-    for _, num := range row {
-      if num.value == number {
-        num.marked = true
-      }
-    }
-  }
-
-}
 
 func Part2(input []string) int {
   numbers := parseNumbers(input[0])
@@ -63,6 +52,16 @@ type Number struct {
 type Board struct {
   values [BOARD_SIZE][BOARD_SIZE]*Number
   number int
+}
+
+func (board *Board) mark(number int) {
+  for _, row := range board.values {
+    for _, num := range row {
+      if num.value == number {
+        num.marked = true
+      }
+    }
+  }
 }
 
 func (board *Board) containedIn(boards []Board) bool {
