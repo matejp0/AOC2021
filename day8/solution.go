@@ -1,7 +1,6 @@
 package day8
 
 import (
-  //"fmt"
   "strings"
   "strconv"
   "sort"
@@ -75,13 +74,12 @@ func Part2(input []string) int {
       }
     }
 
-    var number string
+    var number strings.Builder
     for _, v := range output {
-      num := find(v, nums)
-      number += num
+      number.WriteString(strconv.Itoa(find(v, nums)))
     }
     
-    numberInt, err := strconv.Atoi(number)
+    numberInt, err := strconv.Atoi(number.String())
     if err != nil { panic(err) }
 
     sum += numberInt
@@ -90,7 +88,7 @@ func Part2(input []string) int {
 }
 
 
-func find(s string, nums [11]string) string {
+func find(s string, nums [11]string) int {
   for i, num := range nums {
     var count int
     for _, char := range num {
@@ -99,10 +97,10 @@ func find(s string, nums [11]string) string {
       }
     }
     if len(s) == count && count == len(num) {
-      return strconv.Itoa(i)
+      return i
     }
   }
-  return ""
+  return 0
 }
 
 func containsAll(num string, subNum string) bool {
