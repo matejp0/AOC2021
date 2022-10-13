@@ -38,50 +38,32 @@ func Part2(input []string) int {
     }
   }
   
-  queue := make([][2]int, 0)
-  visited := make(map[[2]int]struct{}, 0)
   basins := make([]int, 0)
 
   for _, riskPoint := range riskPoints {
-    queue = append(queue, riskPoint)
+    visited := make(map[[2]int]struct{}, 0)
+    queue := append(make([][2]int, 0), riskPoint)
 
     for len(queue) != 0 {
-
-      var elem [2]int = queue[0]
-      _, ok := visited[elem]
-      if !ok {
-        visited[elem] = struct{}{}
-
-        queue, _ = dequeue(queue)
-        
-        if elem[1] < lenx-1 && points[elem[0]][elem[1]+1] < 9 {
-          loc := [...]int{elem[0], elem[1]+1}
+      var elem [2]int
+      queue, elem = dequeue(queue)
+      visited[elem] = struct{}{}
+      
+      if loc := [...]int{elem[0], elem[1]+1}; elem[1] < lenx-1 && points[loc[0]][loc[1]] < 9 && !contains(visited, loc) {
           queue = append(queue, loc)
-        }
-        if elem[1] > 0 && points[elem[0]][elem[1]-1] < 9 {
-          loc := [...]int{elem[0], elem[1]-1}
-          queue = append(queue, loc)
-        }
-        if elem[0] < leny-1 && points[elem[0]+1][elem[1]] < 9 {
-          loc := [...]int{elem[0]+1, elem[1]}
-          queue = append(queue, loc)
-        }
-        if elem[0] > 0 && points[elem[0]-1][elem[1]] < 9 {
-          loc := [...]int{elem[0]-1, elem[1]}
-          queue = append(queue, loc)
-        }
-
-      } else {
-        if len(queue) > 0{
-          queue, _ = dequeue(queue)
-        } else {
-          break
-        }
+      }
+      if loc := [...]int{elem[0], elem[1]-1}; elem[1] > 0 && points[loc[0]][loc[1]] < 9 && !contains(visited, loc) {
+        queue = append(queue, loc)
+      }
+      if loc := [...]int{elem[0]+1, elem[1]}; elem[0] < leny-1 && points[loc[0]][loc[1]] < 9 && !contains(visited, loc) {
+        queue = append(queue, loc)
+      }
+      if loc := [...]int{elem[0]-1, elem[1]}; elem[0] > 0 && points[loc[0]][loc[1]] < 9 && !contains(visited, loc) {
+        queue = append(queue, loc)
       }
     }
-    queue = nil
+
     basins = append(basins, len(visited))
-    visited = make(map[[2]int]struct{}, 0)
   }
 
   sort.Slice(basins, func(i, j int) bool { return basins[i] > basins[j] })
@@ -89,6 +71,10 @@ func Part2(input []string) int {
   return basins[0]*basins[1]*basins[2]
 }
 
+func contains(visited map[[2]int]struct{}, point [2]int) bool {
+  _, ok := visited[point]
+  return ok
+}
 func dequeue(queue [][2]int) ([][2]int, [2]int) {
   if len(queue) == 1 {
     return nil, queue[0]
@@ -101,17 +87,11 @@ func parse(input []string) [][]int {
   for y, line := range input {
     points[y] = make([]int, len(line))
     for x, char := range line {
-      points[y][x] = toInt(byte(char))
+      num, err := strconv.Atoi(string(char))
+      if err != nil { panic(err) }
+      points[y][x] = num
     }
   }
 
   return points
-}
-func toInt(char byte) int {
-  num, err := strconv.Atoi(string(char))
-  if err != nil {
-    panic(err)
-  }
-
-  return num
 }
