@@ -25,50 +25,45 @@ func Part1(input []string) int {
 func Part2(input []string) int {
   points := parse(input)
   riskPoints := make([][2]int, 0)
-  leny := len(points)
-  lenx := len(points[0])
   for y, line := range points {
     for x, num := range line {
-      if x < lenx-1 && points[y][x+1] <= num { continue }
+      if x < len(line)-1 && points[y][x+1] <= num { continue }
       if x > 0 && points[y][x-1] <= num { continue }
-      if y < leny-1 && points[y+1][x] <= num { continue }
+      if y < len(points)-1 && points[y+1][x] <= num { continue }
       if y > 0 && points[y-1][x] <= num { continue }
 
       riskPoints = append(riskPoints, [...]int{y, x})
     }
   }
-  
+
   basins := make([]int, 0)
-
   for _, riskPoint := range riskPoints {
-    visited := make(map[[2]int]struct{}, 0)
-    queue := append(make([][2]int, 0), riskPoint)
-
-    for len(queue) != 0 {
-      var elem [2]int
-      queue, elem = dequeue(queue)
-      visited[elem] = struct{}{}
-      
-      if loc := [...]int{elem[0], elem[1]+1}; elem[1] < lenx-1 && points[loc[0]][loc[1]] < 9 && !contains(visited, loc) {
-          queue = append(queue, loc)
-      }
-      if loc := [...]int{elem[0], elem[1]-1}; elem[1] > 0 && points[loc[0]][loc[1]] < 9 && !contains(visited, loc) {
-        queue = append(queue, loc)
-      }
-      if loc := [...]int{elem[0]+1, elem[1]}; elem[0] < leny-1 && points[loc[0]][loc[1]] < 9 && !contains(visited, loc) {
-        queue = append(queue, loc)
-      }
-      if loc := [...]int{elem[0]-1, elem[1]}; elem[0] > 0 && points[loc[0]][loc[1]] < 9 && !contains(visited, loc) {
-        queue = append(queue, loc)
-      }
-    }
-
-    basins = append(basins, len(visited))
+    basins = append(basins, explore(riskPoint[0], riskPoint[1], points, make(map[[2]int]struct{}, 0)))
   }
-
   sort.Slice(basins, func(i, j int) bool { return basins[i] > basins[j] })
-  
+
   return basins[0]*basins[1]*basins[2]
+}
+
+func explore(y int, x int, points [][]int, visited map[[2]int]struct{}) int {
+  boundsY := 0 <= y && y < len(points)
+  boundsX := 0 <= x && x < len(points[0])
+  if !boundsX || !boundsY { return 0 }
+
+  if points[y][x] == 9 { return 0 }
+
+  _, v := visited[[...]int{y, x}]
+  if v { return 0 }
+  visited[[...]int{y, x}] = struct{}{}
+
+  count := 1
+  
+  count += explore(y-1, x, points, visited)
+  count += explore(y, x+1, points, visited)
+  count += explore(y+1, x, points, visited)
+  count += explore(y, x-1, points, visited)
+
+  return count
 }
 
 func contains(visited map[[2]int]struct{}, point [2]int) bool {
