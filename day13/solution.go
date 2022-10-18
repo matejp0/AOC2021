@@ -6,24 +6,23 @@ import (
 )
 
 func Part1(input []string) int {
-  points, folds, _ := parse(input) 
+  points, folds := parse(input) 
 
   folds = folds[:1]
 
   for _, fold := range folds{
-    thisone := strings.Fields(fold)[2]
-    axis := strings.Split(thisone, "=")[0]
-    value := toInt(strings.Split(thisone, "=")[1])
+    arr := strings.Split(fold, "=")
+    axis, value := arr[0], toInt(arr[1])
     switch axis {
     case "x":
-      for key, _ := range points {
+      for key := range points {
         if key[0] > value {
           points[[2]int{key[0] - 2 * (key[0] - value), key[1]}] = true
           delete(points, [2]int{key[0], key[1]})
         }
       }
     case "y":
-      for key, _ := range points {
+      for key := range points {
         if key[1] > value {
           points[[2]int{key[0], key[1] - 2 * (key[1]-value)}] = true
           delete(points, [2]int{key[0], key[1]})
@@ -31,28 +30,27 @@ func Part1(input []string) int {
       }
     }
   }
+  
   return len(points)
-
-    
 }
 
 func Part2(input []string) string {
-  points, folds, _ := parse(input) 
+  points, folds := parse(input) 
 
   for _, fold := range folds{
-    thisone := strings.Fields(fold)[2]
-    axis := strings.Split(thisone, "=")[0]
-    value := toInt(strings.Split(thisone, "=")[1])
+    arr := strings.Split(fold, "=")
+    axis, value := arr[0], toInt(arr[1])
+
     switch axis {
     case "x":
-      for key, _ := range points {
+      for key := range points {
         if key[0] > value {
           points[[2]int{key[0] - 2 * (key[0] - value), key[1]}] = true
           delete(points, [2]int{key[0], key[1]})
         }
       }
     case "y":
-      for key, _ := range points {
+      for key := range points {
         if key[1] > value {
           points[[2]int{key[0], key[1] - 2 * (key[1]-value)}] = true
           delete(points, [2]int{key[0], key[1]})
@@ -63,14 +61,13 @@ func Part2(input []string) string {
 
   var maxx int
   var maxy int
-  for index, _ := range points {
+  for index := range points {
     if index[0] > maxx {
       maxx = index[0]
     }
     if index[1] > maxy {
       maxy = index[1]
     }
-    
   }
 
   var sb strings.Builder
@@ -89,31 +86,24 @@ func Part2(input []string) string {
    return sb.String()
 }
 
-func parse(input []string) (map[[2]int]bool, []string, [2]int) {
-  var mode bool
+func parse(input []string) (map[[2]int]bool, []string) {
+  var modeFold bool
   folds := make([]string, 0)
   points := make(map[[2]int]bool)
-  var maxes [2]int
   for _, line := range input {
     if line == "" {
-      mode = true
+      modeFold = true
       continue
     }
-    if !mode {
+    if !modeFold {
       arr := strings.Split(line, ",")
       points[[2]int{toInt(arr[0]), toInt(arr[1])}] = true
-      for i := 0; i < 2; i++ {
-        if toInt(arr[i]) > maxes[i] {
-          maxes[i] = toInt(arr[i])
-        }
-      }
-
     } else {
-      folds = append(folds, line)
+      folds = append(folds, strings.Fields(line)[2])
     }
   }
 
-  return points, folds, maxes
+  return points, folds
 }
 
 func toInt(str string) int {
