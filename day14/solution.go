@@ -5,37 +5,7 @@ import (
 )
 
 func Part1(input []string) uint64 {
-  template, rules := parse(input)
-
-  const steps = 10
-
-  for step := 0; step < steps; step++ {
-    var sb strings.Builder
-    sb.WriteByte(template[0])
-    for p := 0; p < len(template)-1; p++ {
-      if elem, contains := rules[template[p:p+2]]; contains {
-        sb.WriteString(elem)
-      }
-      sb.WriteByte(template[p+1])
-    }
-    template = sb.String();
-  }
-
-  c := counts(template)
-
-  var leastCommon = uint64(len(template))
-  var mostCommon uint64
-  for _, value := range c {
-    if value > mostCommon {
-      mostCommon = value
-    }
-    if value < leastCommon {
-      leastCommon = value
-    }
-  }
-
-  return mostCommon-leastCommon
-
+  return process(input, 10)
 }
 
 func Part2(input []string) uint64 {
@@ -43,20 +13,11 @@ func Part2(input []string) uint64 {
 }
 
 func process(input []string, steps int) uint64 {
-  template, rules := parse(input)
-  pairs := make(map[string]uint64)
+  pairs, rules := parse(input)
 
-  for p := 0; p < len(template) - 1; p++ {
-    pairs[template[p:p+2]]++
-  }
+  temp := deepCopy(pairs)
 
-
-  temp := make(map[string]uint64)
-  for k, v := range pairs {
-    temp[k] = v
-  }
   for step := 0; step < steps; step++ {
-
     for key, value := range pairs {
       if elem, contains := rules[key]; contains && value != 0 {
         temp[key] -= value
@@ -65,9 +26,7 @@ func process(input []string, steps int) uint64 {
       }
     }
 
-    for k, v := range temp {
-      pairs[k] = v
-    }
+    pairs = deepCopy(temp)
   }
 
   commonLetters := make(map[byte]uint64)
@@ -88,22 +47,23 @@ func process(input []string, steps int) uint64 {
 }
 
 
-func counts(str string) map[rune]uint64 {
-  c := make(map[rune]uint64)
-
-  for _, char := range str {
-    c[char]++
+func deepCopy(orig map[string]uint64) map[string]uint64 {
+  dest := make(map[string]uint64)
+  for k, v := range orig {
+    dest[k] = v
   }
-
-  return c
+  return dest
 }
 
-func parse(lines []string) (string, map[string]string){
-  var template string
+func parse(lines []string) (map[string]uint64, map[string]string){
   rules := make(map[string]string, 0)
+  pairs := make(map[string]uint64)
+  
   for i, line := range lines {
     if i == 0 {
-      template = line
+      for p := 0; p < len(line) - 1; p++ {
+        pairs[line[p:p+2]]++
+      }
       continue
     }
     if line == "" { continue }
@@ -113,6 +73,6 @@ func parse(lines []string) (string, map[string]string){
 
   }
 
-  return template, rules
+  return pairs, rules
 }
 
