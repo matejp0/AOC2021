@@ -13,7 +13,7 @@ func Part2(input []string) uint64 {
 }
 
 func process(input []string, steps int) uint64 {
-  pairs, rules := parse(input)
+  pairs, rules, first, last := parse(input)
 
   temp := deepCopy(pairs)
 
@@ -34,6 +34,9 @@ func process(input []string, steps int) uint64 {
     commonLetters[key[0]] += value 
     commonLetters[key[1]] += value 
   }
+
+  commonLetters[first]++
+  commonLetters[last]++
   
   var mostCommon uint64
   var leastCommon uint64 = ^uint64(0)
@@ -55,15 +58,20 @@ func deepCopy(orig map[string]uint64) map[string]uint64 {
   return dest
 }
 
-func parse(lines []string) (map[string]uint64, map[string]string){
+func parse(lines []string) (map[string]uint64, map[string]string, byte, byte){
   rules := make(map[string]string, 0)
   pairs := make(map[string]uint64)
+
+  var first byte
+  var last byte
   
   for i, line := range lines {
     if i == 0 {
       for p := 0; p < len(line) - 1; p++ {
         pairs[line[p:p+2]]++
       }
+      first = line[0]
+      last = line[len(line)-1]
       continue
     }
     if line == "" { continue }
@@ -73,6 +81,6 @@ func parse(lines []string) (map[string]uint64, map[string]string){
 
   }
 
-  return pairs, rules
+  return pairs, rules, first, last
 }
 
